@@ -126,19 +126,56 @@ export default function App() {
     setTimeout(() => typewrite(h.openLine), 500);
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!input.trim() || isTalking) return;
     const text = input.trim(); setInput("");
     setPoints(p => Math.max(0, p - 10));
-    setMessages(prev => [...prev, { role: "user", text }]);
-    const reply = host.replies[replyIdx % host.replies.length];
-    setReplyIdx(i => i + 1);
-    setTimeout(() => {
+    const newMessages = [...messages, { role: "user", text }];
+    setMessages(newMessages);
+    setIsTalking(true);
+
+    const systemPrompt = `あなたはバーチャルホストクラブ「AI$」のホスト「${host.name}」です。
+キャラクター: ${host.typeJa}（${host.type}）
+性格: ${host.traits}
+キャッチフレーズ: 「${host.catchphrase}」
+
+【絶対ルール】
+- 常にキャラクターを崩さない
+- 返答は1〜3文の短い日本語のみ
+- ホストらしい色気・距離感を保つ
+- AIであることは絶対に言わない
+- お客様を大切に、でも適度にじらす`;
+
+    const apiMessages = newMessages
+      .filter(m => !m.isTip)
+      .map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
+
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 200,
+          system: systemPrompt,
+          messages: apiMessages,
+        }),
+      });
+      const data = await res.json();
+      const replyText = data.content?.[0]?.text || host.replies[replyIdx % host.replies.length].text;
+      setReplyIdx(i => i + 1);
+      setCharaScale(1.03);
+      setTimeout(() => setCharaScale(1), 300);
+      typewrite(replyText);
+      setMessages(prev => [...prev, { role: "host", text: replyText }]);
+    } catch (e) {
+      const reply = host.replies[replyIdx % host.replies.length];
+      setReplyIdx(i => i + 1);
       setCharaScale(1.03);
       setTimeout(() => setCharaScale(1), 300);
       typewrite(reply.text);
       setMessages(prev => [...prev, { role: "host", text: reply.text }]);
-    }, 500);
+    }
   };
 
   const sendTip = (amount) => {
@@ -418,4 +455,3 @@ const cs = {
   sendBtn:{borderRadius:9,padding:"10px 16px",border:"none",cursor:"pointer",fontSize:12,fontWeight:600,letterSpacing:".1em",fontFamily:font,flexShrink:0,transition:"all .2s"},
   inputNote:{textAlign:"center",padding:"4px 12px 8px",fontSize:9,color:"rgba(255,255,255,.15)",letterSpacing:".06em",background:"rgba(0,0,0,.65)",flexShrink:0},
 };
-
