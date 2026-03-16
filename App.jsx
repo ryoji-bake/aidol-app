@@ -134,7 +134,9 @@ export default function App() {
     setMessages(newMessages);
     setIsTalking(true);
 
+    const today = new Date().toLocaleDateString("ja-JP", {year:"numeric",month:"long",day:"numeric"});
     const systemPrompt = `あなたはバーチャルホストクラブ「AI$」のホスト「${host.name}」です。
+今日の日付: ${today}
 キャラクター: ${host.typeJa}（${host.type}）
 性格: ${host.traits}
 キャッチフレーズ: 「${host.catchphrase}」
