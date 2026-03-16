@@ -209,7 +209,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* キャラクターエリア */}
+      {/* キャラクターエリア＋吹き出し */}
       <div style={{...cs.charaArea, background: host.bgGradient}}>
         {/* 背景グロー */}
         <div style={{...cs.glow, background: `radial-gradient(ellipse at 50% 100%, ${host.glowColor} 0%, transparent 70%)`}} />
@@ -224,6 +224,23 @@ export default function App() {
           {/* 下部フェードアウト */}
           <div style={{...cs.charaFade, background: `linear-gradient(to top, ${host.bgScene.match(/#[a-f0-9]{6}/gi)?.[0] || "#0a0400"} 0%, transparent 100%)`}} />
         </div>
+
+        {/* 吹き出し（キャラの右上に重ねて表示） */}
+        {dialogText && (
+          <div style={cs.bubbleWrap} className="bubble-in">
+            {/* 吹き出し本体 */}
+            <div style={{...cs.bubble, borderColor: host.accentColor+"70"}}>
+              <div style={{...cs.bubbleName, color: host.accentColor}}>
+                {host.name}{isTypingDialog && <span style={cs.cursor}>|</span>}
+              </div>
+              <div style={cs.bubbleText}>{dialogText}</div>
+            </div>
+            {/* 吹き出しのしっぽ（左下向き） */}
+            <div style={{...cs.bubbleTail, borderTopColor: host.accentColor+"70"}} />
+            <div style={{...cs.bubbleTailInner}} />
+          </div>
+        )}
+
         {/* 投げ銭バー */}
         <div style={cs.tipBar}>
           <span style={cs.tipBarLabel}>投げ銭</span>
@@ -231,16 +248,6 @@ export default function App() {
             <div style={{...cs.tipBarFill, width: `${Math.min((tipTotal/10000)*100,100)}%`, background: host.accentColor}}/>
           </div>
           <span style={{color: host.accentColor, fontSize:10}}>{tipTotal.toLocaleString()} / 10,000pt</span>
-        </div>
-      </div>
-
-      {/* ダイアログボックス */}
-      <div style={{...cs.dialog, borderColor: host.accentColor+"60"}}>
-        <div style={{...cs.dialogName, color: host.accentColor}}>
-          {host.name}{isTypingDialog && <span style={cs.cursor}>|</span>}
-        </div>
-        <div style={cs.dialogText}>
-          {dialogText || <span style={{opacity:0.25}}>…</span>}
         </div>
       </div>
 
@@ -379,18 +386,22 @@ const cs = {
   metaRight:{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:2},
   timer:{fontSize:11,color:"rgba(255,255,255,.3)",fontVariantNumeric:"tabular-nums"},
   pts:{fontSize:13,fontWeight:600},
-  charaArea:{flex:"0 0 40vh",position:"relative",overflow:"hidden",flexShrink:0},
+  charaArea:{flex:"0 0 55vh",position:"relative",overflow:"hidden",flexShrink:0},
   glow:{position:"absolute",inset:0,pointerEvents:"none"},
   charaImgWrap:{position:"absolute",inset:0,display:"flex",alignItems:"flex-end",justifyContent:"center"},
   charaImg:{height:"100%",objectFit:"contain",objectPosition:"bottom",maxWidth:"100%"},
-  charaFade:{position:"absolute",bottom:0,left:0,right:0,height:"35%",pointerEvents:"none"},
+  charaFade:{position:"absolute",bottom:0,left:0,right:0,height:"25%",pointerEvents:"none"},
   tipBar:{position:"absolute",bottom:8,left:12,right:12,display:"flex",alignItems:"center",gap:8,background:"rgba(0,0,0,.5)",borderRadius:6,padding:"5px 10px"},
   tipBarLabel:{fontSize:9,color:"rgba(255,255,255,.25)",letterSpacing:".1em",whiteSpace:"nowrap"},
   tipBarTrack:{flex:1,height:2,background:"rgba(255,255,255,.08)",borderRadius:1,overflow:"hidden"},
   tipBarFill:{height:"100%",borderRadius:1,transition:"width .5s ease"},
-  dialog:{flexShrink:0,margin:"8px 12px",background:"rgba(0,0,0,.8)",border:"1px solid",borderRadius:10,padding:"12px 16px",backdropFilter:"blur(8px)",minHeight:76},
-  dialogName:{fontSize:12,fontWeight:600,letterSpacing:".15em",marginBottom:7},
-  dialogText:{fontSize:14,color:"rgba(232,224,208,.9)",lineHeight:1.8,letterSpacing:".04em",minHeight:46},
+  // 吹き出し
+  bubbleWrap:{position:"absolute",top:"8%",right:"5%",maxWidth:"48%",zIndex:10},
+  bubble:{background:"rgba(8,6,4,0.92)",border:"2px solid",borderRadius:"16px 16px 16px 4px",padding:"10px 14px",backdropFilter:"blur(16px)",boxShadow:"0 8px 32px rgba(0,0,0,0.7)"},
+  bubbleName:{fontSize:11,fontWeight:700,letterSpacing:".15em",marginBottom:5},
+  bubbleText:{fontSize:12,color:"rgba(232,224,208,.92)",lineHeight:1.75,letterSpacing:".03em"},
+  bubbleTail:{position:"absolute",bottom:-12,left:16,width:0,height:0,borderLeft:"10px solid transparent",borderRight:"6px solid transparent",borderTop:"12px solid"},
+  bubbleTailInner:{position:"absolute",bottom:-9,left:18,width:0,height:0,borderLeft:"8px solid transparent",borderRight:"4px solid transparent",borderTop:"10px solid rgba(8,6,4,0.92)"},
   cursor:{display:"inline-block",animation:"blink .7s ease-in-out infinite",marginLeft:2,color:"#C9A84C"},
   history:{flex:1,overflowY:"auto",padding:"5px 12px",display:"flex",flexDirection:"column",gap:5},
   histRow:{display:"flex",alignItems:"center",gap:6,animation:"fadeUp .2s ease"},
@@ -407,3 +418,4 @@ const cs = {
   sendBtn:{borderRadius:9,padding:"10px 16px",border:"none",cursor:"pointer",fontSize:12,fontWeight:600,letterSpacing:".1em",fontFamily:font,flexShrink:0,transition:"all .2s"},
   inputNote:{textAlign:"center",padding:"4px 12px 8px",fontSize:9,color:"rgba(255,255,255,.15)",letterSpacing:".06em",background:"rgba(0,0,0,.65)",flexShrink:0},
 };
+
