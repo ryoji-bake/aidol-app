@@ -266,7 +266,7 @@ export default function App() {
             src={CHARA_IMAGES[host.id]}
             alt={host.name}
             style={cs.charaImg}
-            className={isTalking ? "talking" : ""}
+            className={isTalking ? "talking" : "idle"}
           />
           {/* 下部フェードアウト */}
           <div style={{...cs.charaFade, background: `linear-gradient(to top, ${host.bgScene.match(/#[a-f0-9]{6}/gi)?.[0] || "#0a0400"} 0%, transparent 100%)`}} />
@@ -377,8 +377,37 @@ const CSS = `
   @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
   @keyframes pop { 0%{transform:scale(.5);opacity:0} 65%{transform:scale(1.06)} 100%{transform:scale(1);opacity:1} }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-  @keyframes talking { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-5px) scale(1.005)} }
-  .talking { animation: talking 0.5s ease-in-out infinite; }
+  @keyframes talking {
+    0%{transform:translateY(0) scale(1) rotate(0deg)}
+    15%{transform:translateY(-4px) scale(1.008) rotate(-0.3deg)}
+    30%{transform:translateY(-2px) scale(1.012) rotate(0.3deg)}
+    45%{transform:translateY(-5px) scale(1.006) rotate(-0.2deg)}
+    60%{transform:translateY(-1px) scale(1.01) rotate(0.2deg)}
+    75%{transform:translateY(-4px) scale(1.008) rotate(-0.1deg)}
+    100%{transform:translateY(0) scale(1) rotate(0deg)}
+  }
+  @keyframes idle {
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-3px) scale(1.003)}
+  }
+  @keyframes talkingGlow {
+    0%,100%{filter:drop-shadow(0 0 8px rgba(255,255,255,0.1))}
+    50%{filter:drop-shadow(0 0 20px rgba(255,255,255,0.25))}
+  }
+  @keyframes bubbleIn {
+    0%{transform:scale(0.7) translateY(8px);opacity:0}
+    60%{transform:scale(1.05) translateY(-2px);opacity:1}
+    100%{transform:scale(1) translateY(0);opacity:1}
+  }
+  .talking {
+    animation: talking 0.45s ease-in-out infinite, talkingGlow 0.45s ease-in-out infinite;
+  }
+  .idle {
+    animation: idle 3s ease-in-out infinite;
+  }
+  .bubble-in {
+    animation: bubbleIn 0.35s cubic-bezier(.23,1,.32,1) forwards;
+  }
 `;
 
 const font = "'Noto Serif JP','Cormorant Garamond',serif";
