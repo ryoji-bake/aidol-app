@@ -324,7 +324,7 @@ export default function App() {
       <div style={cs.inputArea}>
         <button style={{...cs.tipIcon, borderColor: host.accentColor+"70", color: host.accentColor}} onClick={() => setShowTipMenu(v=>!v)}>💎</button>
         <input style={cs.input} value={input} onChange={e=>setInput(e.target.value)}
-          onKeyDown={e=>e.key==="Enter"&&sendMessage()}
+          onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&!e.nativeEvent.isComposing&&sendMessage()}
           placeholder={isTalking?"…":`${host.name}に話しかける`} disabled={isTalking}/>
         <button style={{...cs.sendBtn, background:(!input.trim()||isTalking)?"rgba(201,168,76,0.12)":host.accentColor, color:(!input.trim()||isTalking)?"rgba(201,168,76,0.3)":"#000"}}
           onClick={sendMessage} disabled={isTalking||!input.trim()}>送信</button>
