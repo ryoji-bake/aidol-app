@@ -134,7 +134,9 @@ export default function App() {
     setMessages(newMessages);
     setIsTalking(true);
 
+    const today = new Date().toLocaleDateString("ja-JP", {year:"numeric",month:"long",day:"numeric"});
     const systemPrompt = `あなたはバーチャルホストクラブ「AI$」のホスト「${host.name}」です。
+今日の日付: ${today}
 キャラクター: ${host.typeJa}（${host.type}）
 性格: ${host.traits}
 キャッチフレーズ: 「${host.catchphrase}」
@@ -161,13 +163,16 @@ export default function App() {
         },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
-          max_tokens: 200,
+          max_tokens: 500,
           system: systemPrompt,
           messages: apiMessages,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
         }),
       });
       const data = await res.json();
-      const replyText = data.content?.[0]?.text || host.replies[replyIdx % host.replies.length].text;
+      // テキストブロックを探す（web_search使用時は複数ブロックが返る）
+      const textBlock = data.content?.find(b => b.type === "text");
+      const replyText = textBlock?.text || host.replies[replyIdx % host.replies.length].text;
       setReplyIdx(i => i + 1);
       setCharaScale(1.03);
       setTimeout(() => setCharaScale(1), 300);
@@ -319,7 +324,7 @@ export default function App() {
       <div style={cs.inputArea}>
         <button style={{...cs.tipIcon, borderColor: host.accentColor+"70", color: host.accentColor}} onClick={() => setShowTipMenu(v=>!v)}>💎</button>
         <input style={cs.input} value={input} onChange={e=>setInput(e.target.value)}
-          onKeyDown={e=>e.key==="Enter"&&sendMessage()}
+          onKeyDown={e=>e.key==="Enter"&&e.preventDefault()}
           placeholder={isTalking?"…":`${host.name}に話しかける`} disabled={isTalking}/>
         <button style={{...cs.sendBtn, background:(!input.trim()||isTalking)?"rgba(201,168,76,0.12)":host.accentColor, color:(!input.trim()||isTalking)?"rgba(201,168,76,0.3)":"#000"}}
           onClick={sendMessage} disabled={isTalking||!input.trim()}>送信</button>
